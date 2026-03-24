@@ -4,9 +4,10 @@ A portable VS Code + Dart SDK bundle for in-class programming tests.
 
 ## Quick Setup (PowerShell)
 
-Open the start menu, search for "PowerShell", open it and enter the following command.
-Wait for the script to download, extract and launch VS Code.
-Then read the instructions in the comments of `main.dart` to get started.
+1. Open the start menu, search for "PowerShell", open it and enter the command below.
+2. Wait for the script to download, extract and launch VS Code.
+3. Click "Trust" if prompted about trusting the folder.
+4. Then read the instructions in the comments of `main.dart` to get started.
 
 ```plaintext
 irm https://raw.githubusercontent.com/manighahrmani/dart_inclass_test_vscode/main/install.ps1 | iex
