@@ -15,13 +15,13 @@
 $ErrorActionPreference = "Stop"
 
 $DownloadUrl = "https://github.com/manighahrmani/dart_inclass_test_vscode/releases/latest/download/dart_inclass_test.zip"
-
 $DestFolder = "$env:USERPROFILE\Desktop\dart_inclass_test"
 $ZipPath = "$env:TEMP\dart_inclass_test.zip"
+$FallbackUrl = "https://github.com/manighahrmani/dart_inclass_test_vscode/releases/latest"
 
 Write-Host ""
 Write-Host "=====================================" -ForegroundColor Cyan
-Write-Host "  Dart VS Code - Class Setup" -ForegroundColor Cyan
+Write-Host "  Dart VS Code - In-Class Test Setup" -ForegroundColor Cyan
 Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -37,31 +37,51 @@ if (Test-Path $DestFolder) {
     Remove-Item $DestFolder -Recurse -Force
 }
 
-# Download
+# Download with progress (curl.exe is built into Windows 10/11)
 Write-Host "Downloading dart_inclass_test.zip ..." -ForegroundColor Green
+$downloadTimer = [System.Diagnostics.Stopwatch]::StartNew()
 try {
-    $ProgressPreference = 'SilentlyContinue'  # Speeds up Invoke-WebRequest
-    Invoke-WebRequest -Uri $DownloadUrl -OutFile $ZipPath -UseBasicParsing
+    & curl.exe -L -o $ZipPath --progress-bar $DownloadUrl
+    if ($LASTEXITCODE -ne 0) { throw "curl.exe exited with code $LASTEXITCODE" }
 } catch {
-    Write-Host "ERROR: Download failed." -ForegroundColor Red
-    Write-Host "  URL: $DownloadUrl" -ForegroundColor Red
-    Write-Host "  $_" -ForegroundColor Red
     Write-Host ""
-    Write-Host "Try downloading manually from the URL above." -ForegroundColor Yellow
+    Write-Host "ERROR: Download failed. $_" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "BACKUP METHOD:" -ForegroundColor Yellow
+    Write-Host "  1. Open in browser: $FallbackUrl" -ForegroundColor Yellow
+    Write-Host "  2. Download dart_inclass_test.zip manually" -ForegroundColor Yellow
+    Write-Host "  3. Extract the zip to your Desktop" -ForegroundColor Yellow
+    Write-Host "  4. Double-click DOUBLE_CLICK_ME_TO_START_TEST.bat" -ForegroundColor Yellow
     exit 1
 }
+$downloadTimer.Stop()
 
 $zipSize = [math]::Round((Get-Item $ZipPath).Length / 1MB, 1)
-Write-Host "Downloaded ${zipSize} MB" -ForegroundColor Green
+Write-Host "Downloaded ${zipSize} MB in $([math]::Round($downloadTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
-# Extract
+# Extract with tar (much faster than Expand-Archive)
 Write-Host "Extracting to Desktop ..." -ForegroundColor Green
+$extractTimer = [System.Diagnostics.Stopwatch]::StartNew()
 try {
-    Expand-Archive -Path $ZipPath -DestinationPath "$env:USERPROFILE\Desktop" -Force
+    & tar -xf $ZipPath -C "$env:USERPROFILE\Desktop"
+    if ($LASTEXITCODE -ne 0) { throw "tar exited with code $LASTEXITCODE" }
 } catch {
-    Write-Host "ERROR: Extraction failed. $_" -ForegroundColor Red
-    exit 1
+    Write-Host "tar failed, falling back to Expand-Archive (slower) ..." -ForegroundColor Yellow
+    try {
+        Expand-Archive -Path $ZipPath -DestinationPath "$env:USERPROFILE\Desktop" -Force
+    } catch {
+        Write-Host ""
+        Write-Host "ERROR: Extraction failed. $_" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "BACKUP METHOD:" -ForegroundColor Yellow
+        Write-Host "  1. The zip is at: $ZipPath" -ForegroundColor Yellow
+        Write-Host "  2. Right-click it -> Extract All -> choose Desktop" -ForegroundColor Yellow
+        Write-Host "  3. Double-click DOUBLE_CLICK_ME_TO_START_TEST.bat" -ForegroundColor Yellow
+        exit 1
+    }
 }
+$extractTimer.Stop()
+Write-Host "Extracted in $([math]::Round($extractTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
 # Cleanup zip
 Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
