@@ -1,17 +1,12 @@
 # Dart In-Class Test (Portable VS Code)
 
-A portable VS Code + Dart SDK bundle for in-class programming tests. No installation required — just extract and run.
-
-## What's Included
-
-- VS Code (portable mode, locked-down UI)
-- Dart SDK 3.11.3
-- Dart Code and Error Lens extensions (pre-installed)
-- All AI/Copilot features disabled
+A portable VS Code + Dart SDK bundle for in-class programming tests.
 
 ## Quick Setup (PowerShell)
 
-Run this one-liner in PowerShell to download, extract to Desktop, and launch:
+Open the start menu, search for "PowerShell", open it and enter the following command.
+Wait for the script to download, extract and launch VS Code.
+Then read the instructions in the comments of `main.dart` to get started.
 
 ```powershell
 irm https://raw.githubusercontent.com/manighahrmani/dart_inclass_test_vscode/main/install.ps1 | iex
