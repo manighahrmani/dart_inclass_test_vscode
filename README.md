@@ -8,7 +8,7 @@ Open the start menu, search for "PowerShell", open it and enter the following co
 Wait for the script to download, extract and launch VS Code.
 Then read the instructions in the comments of `main.dart` to get started.
 
-```powershell
+```plaintext
 irm https://raw.githubusercontent.com/manighahrmani/dart_inclass_test_vscode/main/install.ps1 | iex
 ```
 
