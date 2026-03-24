@@ -86,6 +86,10 @@ try {
 $extractTimer.Stop()
 Write-Host "Extracted in $([math]::Round($extractTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
+# Unblock all extracted files (Windows blocks exes extracted from internet-downloaded zips)
+Write-Host "Unblocking files ..." -ForegroundColor Green
+Get-ChildItem -Path $DestFolder -Recurse | Unblock-File -ErrorAction SilentlyContinue
+
 # Cleanup zip
 Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
 
