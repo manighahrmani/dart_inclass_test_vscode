@@ -59,13 +59,29 @@ $downloadTimer.Stop()
 $zipSize = [math]::Round((Get-Item $ZipPath).Length / 1MB, 1)
 Write-Host "Downloaded ${zipSize} MB in $([math]::Round($downloadTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
-# Extract with progress indicator
+# Extract with progress bar
 Write-Host "Extracting to Desktop ..." -ForegroundColor Green
 $extractTimer = [System.Diagnostics.Stopwatch]::StartNew()
 try {
-    & tar -xf $ZipPath -C "$env:USERPROFILE\Desktop" 2>&1
+    # Count total entries for progress calculation
+    $totalFiles = (& tar -tf $ZipPath 2>$null).Count
+    if ($totalFiles -eq 0) { $totalFiles = 1 }
+    $count = 0
+    $barWidth = 30
+    & tar -xvf $ZipPath -C "$env:USERPROFILE\Desktop" 2>&1 | ForEach-Object {
+        $count++
+        if ($count % 100 -eq 0 -or $count -eq $totalFiles) {
+            $pct = [math]::Min(100, [math]::Round(($count / $totalFiles) * 100))
+            $filled = [math]::Round($barWidth * $pct / 100)
+            $empty = $barWidth - $filled
+            $bar = "[" + ("#" * $filled) + ("-" * $empty) + "]"
+            Write-Host "`r  $bar $pct% ($count / $totalFiles files)" -NoNewline -ForegroundColor Green
+        }
+    }
+    Write-Host ""
     if ($LASTEXITCODE -ne 0) { throw "tar exited with code $LASTEXITCODE" }
 } catch {
+    Write-Host ""
     Write-Host "tar failed, falling back to Expand-Archive (slower) ..." -ForegroundColor Yellow
     try {
         Expand-Archive -Path $ZipPath -DestinationPath "$env:USERPROFILE\Desktop" -Force
