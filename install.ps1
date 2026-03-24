@@ -59,6 +59,9 @@ $downloadTimer.Stop()
 $zipSize = [math]::Round((Get-Item $ZipPath).Length / 1MB, 1)
 Write-Host "Downloaded ${zipSize} MB in $([math]::Round($downloadTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
+# Remove Mark-of-the-Web so extracted .exe files aren't blocked by Windows
+Unblock-File -Path $ZipPath -ErrorAction SilentlyContinue
+
 # Extract (tar is fast and built into Windows 10/11)
 Write-Host "Extracting to Desktop ..." -ForegroundColor Green
 $extractTimer = [System.Diagnostics.Stopwatch]::StartNew()
