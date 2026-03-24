@@ -1,4 +1,4 @@
-# Dart In-Class Test (Portable VS Code)
+# Portable VS Code For Dart In-Class Tests
 
 A portable VS Code + Dart SDK bundle for in-class programming tests.
 
