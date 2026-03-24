@@ -21,7 +21,7 @@ $FallbackUrl = "https://github.com/manighahrmani/dart_inclass_test_vscode/releas
 
 Write-Host ""
 Write-Host "=====================================" -ForegroundColor Cyan
-Write-Host "  VS Code For Dart In-Class Tests    " -ForegroundColor Cyan
+Write-Host "  Dart VS Code - In-Class Test Setup" -ForegroundColor Cyan
 Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -59,14 +59,14 @@ $downloadTimer.Stop()
 $zipSize = [math]::Round((Get-Item $ZipPath).Length / 1MB, 1)
 Write-Host "Downloaded ${zipSize} MB in $([math]::Round($downloadTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
-# Remove Mark-of-the-Web so extracted .exe files aren't blocked by Windows
+# Remove internet download block before extraction
 Unblock-File -Path $ZipPath -ErrorAction SilentlyContinue
 
-# Extract (tar is fast and built into Windows 10/11)
+# Extract
 Write-Host "Extracting to Desktop ..." -ForegroundColor Green
 $extractTimer = [System.Diagnostics.Stopwatch]::StartNew()
 try {
-    & tar -xf $ZipPath -C "$env:USERPROFILE\Desktop"
+    & tar -xf $ZipPath -C "$env:USERPROFILE\Desktop" 2>&1
     if ($LASTEXITCODE -ne 0) { throw "tar exited with code $LASTEXITCODE" }
 } catch {
     Write-Host "tar failed, falling back to Expand-Archive (slower) ..." -ForegroundColor Yellow
@@ -86,9 +86,8 @@ try {
 $extractTimer.Stop()
 Write-Host "Extracted in $([math]::Round($extractTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
 
-# Unblock all extracted files (Windows blocks exes extracted from internet-downloaded zips)
-Write-Host "Unblocking files ..." -ForegroundColor Green
-Get-ChildItem -Path $DestFolder -Recurse | Unblock-File -ErrorAction SilentlyContinue
+# Unblock all extracted exe files (Windows blocks executables from internet downloads)
+Get-ChildItem -Path $DestFolder -Recurse -Filter "*.exe" | Unblock-File -ErrorAction SilentlyContinue
 
 # Cleanup zip
 Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
