@@ -62,26 +62,21 @@ Write-Host "Downloaded ${zipSize} MB in $([math]::Round($downloadTimer.Elapsed.T
 # Remove internet download block before extraction
 Unblock-File -Path $ZipPath -ErrorAction SilentlyContinue
 
-# Extract
+
+# Fast extraction using Expand-Archive only (no progress bar, no tar fallback)
 Write-Host "Extracting to Desktop ..." -ForegroundColor Green
 $extractTimer = [System.Diagnostics.Stopwatch]::StartNew()
 try {
-    & tar -xf $ZipPath -C "$env:USERPROFILE\Desktop" 2>&1
-    if ($LASTEXITCODE -ne 0) { throw "tar exited with code $LASTEXITCODE" }
+    Expand-Archive -Path $ZipPath -DestinationPath "$env:USERPROFILE\Desktop" -Force
 } catch {
-    Write-Host "tar failed, falling back to Expand-Archive (slower) ..." -ForegroundColor Yellow
-    try {
-        Expand-Archive -Path $ZipPath -DestinationPath "$env:USERPROFILE\Desktop" -Force
-    } catch {
-        Write-Host "" 
-        Write-Host "ERROR: Extraction failed. $_" -ForegroundColor Red
-        Write-Host ""
-        Write-Host "BACKUP METHOD:" -ForegroundColor Yellow
-        Write-Host "  1. The zip is at: $ZipPath" -ForegroundColor Yellow
-        Write-Host "  2. Right-click it -> Extract All -> choose Desktop" -ForegroundColor Yellow
-        Write-Host "  3. Double-click DOUBLE_CLICK_ME_TO_START_TEST.bat" -ForegroundColor Yellow
-        exit 1
-    }
+    Write-Host "" 
+    Write-Host "ERROR: Extraction failed. $_" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "BACKUP METHOD:" -ForegroundColor Yellow
+    Write-Host "  1. The zip is at: $ZipPath" -ForegroundColor Yellow
+    Write-Host "  2. Right-click it -> Extract All -> choose Desktop" -ForegroundColor Yellow
+    Write-Host "  3. Double-click DOUBLE_CLICK_ME_TO_START_TEST.bat" -ForegroundColor Yellow
+    exit 1
 }
 $extractTimer.Stop()
 Write-Host "Extracted in $([math]::Round($extractTimer.Elapsed.TotalSeconds, 1))s" -ForegroundColor Green
