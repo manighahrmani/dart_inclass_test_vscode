@@ -58,11 +58,14 @@ Write-Host "Downloaded ${zipSize} MB in $([math]::Round($downloadTimer.Elapsed.T
 # Remove internet download block before extraction
 Unblock-File -Path $ZipPath -ErrorAction SilentlyContinue
 
-# Extract (fast, no progress bar)
-Write-Host "Extracting to Desktop ..." -ForegroundColor Green
+# Extract (progress bar disabled for speed)
+Write-Host "Extracting to Desktop (this may take a moment) ..." -ForegroundColor Green
 $extractTimer = [System.Diagnostics.Stopwatch]::StartNew()
 try {
+    $oldProgress = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
     Expand-Archive -Path $ZipPath -DestinationPath "$env:USERPROFILE\Desktop" -Force
+    $ProgressPreference = $oldProgress
 } catch {
     Write-Host "" 
     Write-Host "ERROR: Extraction failed. $_" -ForegroundColor Red
